@@ -130,12 +130,36 @@ static PyObject *PYXXH32_update(PYXXH32Object *self, PyObject *args)
 static PyObject *PYXXH32_digest(PYXXH32Object *self)
 {
     unsigned int digest = XXH32_intermediateDigest(self->xxhash_state);
-    return Py_BuildValue("I", digest);
+
+    return PyString_FromStringAndSize((char*)&digest, 4);
+}
+
+static PyObject *PYXXH32_hex_digest(PYXXH32Object *self)
+{
+    unsigned char hexdigest[8];
+    unsigned int digest;
+    int i, j;
+
+    digest = XXH32_intermediateDigest(self->xxhash_state);
+
+    /* Make hex version of the digest */
+    for(i=0,j=0; i<4; i++) {
+        char c;
+        c = (digest >> 28) & 0xf;
+        c = (c>9) ? c+'a'-10 : c + '0';
+        hexdigest[j++] = c;
+        c = (digest >> 24) & 0xf;
+        c = (c>9) ? c+'a'-10 : c + '0';
+        hexdigest[j++] = c;
+        digest = digest << 8;
+    }
+    return PyString_FromStringAndSize((char*)hexdigest, 8);
 }
 
 static PyMethodDef PYXXH32_methods[] = {
-    {"update", (PyCFunction)PYXXH32_update, METH_VARARGS, "XXH32_update"},
-    {"digest", (PyCFunction)PYXXH32_digest, METH_NOARGS, "XXH32_digest"},
+    {"update", (PyCFunction)PYXXH32_update, METH_VARARGS, "Update this hash object's state with the provided string."},
+    {"digest", (PyCFunction)PYXXH32_digest, METH_NOARGS, "Return the digest value as a string of binary data."},
+    {"hexdigest", (PyCFunction)PYXXH32_hex_digest, METH_NOARGS, "Return the digest value as a string of hexadecimal digits."},
     {NULL, NULL, 0, NULL}
 };
 
@@ -241,12 +265,35 @@ static PyObject *PYXXH64_update(PYXXH64Object *self, PyObject *args)
 static PyObject *PYXXH64_digest(PYXXH64Object *self)
 {
     unsigned long long digest = XXH64_intermediateDigest(self->xxhash_state);
-    return Py_BuildValue("K", digest);
+    return PyString_FromStringAndSize((char*)&digest, 8);
+}
+
+static PyObject *PYXXH64_hex_digest(PYXXH32Object *self)
+{
+    unsigned char hexdigest[16];
+    unsigned long long digest;
+    int i, j;
+
+    digest = XXH64_intermediateDigest(self->xxhash_state);
+
+    /* Make hex version of the digest */
+    for(i=0,j=0; i<8; i++) {
+        char c;
+        c = (digest >> 60) & 0xf;
+        c = (c>9) ? c+'a'-10 : c + '0';
+        hexdigest[j++] = c;
+        c = (digest >> 56) & 0xf;
+        c = (c>9) ? c+'a'-10 : c + '0';
+        hexdigest[j++] = c;
+        digest = digest << 8;
+    }
+    return PyString_FromStringAndSize((char*)hexdigest, 16);
 }
 
 static PyMethodDef PYXXH64_methods[] = {
-    {"update", (PyCFunction)PYXXH64_update, METH_VARARGS, "XXH64_update"},
-    {"digest", (PyCFunction)PYXXH64_digest, METH_NOARGS, "XXH64_digest"},
+    {"update", (PyCFunction)PYXXH64_update, METH_VARARGS, "Update this hash object's state with the provided string."},
+    {"digest", (PyCFunction)PYXXH64_digest, METH_NOARGS, "Return the digest value as a string of binary data."},
+    {"hexdigest", (PyCFunction)PYXXH64_hex_digest, METH_NOARGS, "Return the digest value as a string of hexadecimal digits."},
     {NULL, NULL, 0, NULL}
 };
 
