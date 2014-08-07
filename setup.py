@@ -4,25 +4,26 @@
 from setuptools import setup, Extension
 import os
 
-VERSION = "0.1.0"
+VERSION = "0.1.1"
 XXHASH_VERSION = "r35"
 
-if os.name == 'posix' :
+if os.name == 'posix':
     extra_compile_args = [
-            "-std=c99",
-            "-O3",
-            "-Wall",
-            "-W",
-            "-Wundef",
-            "-Wno-error=declaration-after-statement"  # ref: http://bugs.python.org/issue21121
-        ]
+        "-std=c99",
+        "-O3",
+        "-Wall",
+        "-W",
+        "-Wundef",
+        # ref: http://bugs.python.org/issue21121
+        "-Wno-error=declaration-after-statement",
+    ]
 else:
     extra_compile_args = None
 
 define_macros = [
-        ('VERSION', VERSION),
-        ('XXHASH_VERSION', XXHASH_VERSION)
-    ]
+    ('VERSION', VERSION),
+    ('XXHASH_VERSION', XXHASH_VERSION)
+]
 
 setup(
     name='xxhash',
@@ -36,7 +37,7 @@ setup(
         Extension('xxhash', [
             'python-xxhash.c',
             'xxhash/xxhash.c',
-        ], 
+        ],
         extra_compile_args=extra_compile_args,
         define_macros=define_macros)
     ],
@@ -46,7 +47,6 @@ setup(
         'Development Status :: 4 - Beta',
         'License :: OSI Approved :: BSD License',
         'Intended Audience :: Developers',
-        'Programming Language :: C',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
@@ -54,6 +54,6 @@ setup(
         'Programming Language :: Python :: 3.2',
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
-        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Programming Language :: Python :: Implementation :: CPython',
     ],
 )
