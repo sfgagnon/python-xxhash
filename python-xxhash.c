@@ -24,7 +24,7 @@
  *
  */
 
-
+#include <string.h>
 #include <Python.h>
 
 #include "xxhash/xxhash.h"
@@ -83,6 +83,8 @@ typedef struct {
     /* Type-specific fields go here. */
     void *xxhash_state;
 } PYXXH32Object;
+
+static PyTypeObject PYXXH32Type;
 
 static void PYXXH32_dealloc(PYXXH32Object *self)
 {
@@ -157,11 +159,57 @@ static PyObject *PYXXH32_hex_digest(PYXXH32Object *self)
     return PyString_FromStringAndSize((char*)hexdigest, 8);
 }
 
+static PyObject *PYXXH32_copy(PYXXH32Object *self)
+{
+    PYXXH32Object *hashObject;
+    hashObject = (PYXXH32Object *)PyObject_CallFunction((PyObject*)&PYXXH32Type, NULL);
+    if (hashObject == NULL)
+        return 0;
+
+    memcpy(hashObject->xxhash_state, self->xxhash_state, XXH32_sizeofState());
+    return (PyObject *)hashObject;
+}
+
 static PyMethodDef PYXXH32_methods[] = {
     {"update", (PyCFunction)PYXXH32_update, METH_VARARGS, "Update this hash object's state with the provided string."},
     {"digest", (PyCFunction)PYXXH32_digest, METH_NOARGS, "Return the digest value as a string of binary data."},
     {"hexdigest", (PyCFunction)PYXXH32_hex_digest, METH_NOARGS, "Return the digest value as a string of hexadecimal digits."},
+    {"copy", (PyCFunction)PYXXH32_copy, METH_NOARGS, "Return a copy of the hash object."},
     {NULL, NULL, 0, NULL}
+};
+
+static PyObject *
+PYXXH32_get_block_size(PyObject *self, void *closure)
+{
+    return PyInt_FromLong(16);
+}
+
+static PyObject *
+PYXXH32_get_digest_size(PyObject *self, void *closure)
+{
+    return PyInt_FromLong(4);
+}
+
+static PyObject *
+PYXXH32_get_name(PyObject *self, void *closure)
+{
+    return PyString_FromStringAndSize("XXH32", 5);
+}
+
+static PyGetSetDef PYXXH32_getseters[] = {
+    {"digest_size",
+     (getter)PYXXH32_get_digest_size, NULL,
+     NULL,
+     NULL},
+    {"block_size",
+     (getter)PYXXH32_get_block_size, NULL,
+     NULL,
+     NULL},
+    {"name",
+     (getter)PYXXH32_get_name, NULL,
+     NULL,
+     NULL},
+    {NULL}  /* Sentinel */
 };
 
 static PyTypeObject PYXXH32Type = {
@@ -199,7 +247,7 @@ static PyTypeObject PYXXH32Type = {
     0,                             /* tp_iternext */
     PYXXH32_methods,               /* tp_methods */
     0,                             /* tp_members */
-    0,                             /* tp_getset */
+    PYXXH32_getseters,             /* tp_getset */
     0,                             /* tp_base */
     0,                             /* tp_dict */
     0,                             /* tp_descr_get */
@@ -218,6 +266,8 @@ typedef struct {
     /* Type-specific fields go here. */
     void *xxhash_state;
 } PYXXH64Object;
+
+static PyTypeObject PYXXH64Type;
 
 static void PYXXH64_dealloc(PYXXH64Object *self)
 {
@@ -291,11 +341,57 @@ static PyObject *PYXXH64_hex_digest(PYXXH32Object *self)
     return PyString_FromStringAndSize((char*)hexdigest, 16);
 }
 
+static PyObject *PYXXH64_copy(PYXXH64Object *self)
+{
+    PYXXH64Object *hashObject;
+    hashObject = (PYXXH64Object *)PyObject_CallFunction((PyObject*)&PYXXH64Type, NULL);
+    if (hashObject == NULL)
+        return 0;
+
+    memcpy(hashObject->xxhash_state, self->xxhash_state, XXH64_sizeofState());
+    return (PyObject *)hashObject;
+}
+
 static PyMethodDef PYXXH64_methods[] = {
     {"update", (PyCFunction)PYXXH64_update, METH_VARARGS, "Update this hash object's state with the provided string."},
     {"digest", (PyCFunction)PYXXH64_digest, METH_NOARGS, "Return the digest value as a string of binary data."},
     {"hexdigest", (PyCFunction)PYXXH64_hex_digest, METH_NOARGS, "Return the digest value as a string of hexadecimal digits."},
+    {"copy", (PyCFunction)PYXXH64_copy, METH_NOARGS, "Return a copy of the hash object."},
     {NULL, NULL, 0, NULL}
+};
+
+static PyObject *
+PYXXH64_get_block_size(PyObject *self, void *closure)
+{
+    return PyInt_FromLong(32);
+}
+
+static PyObject *
+PYXXH64_get_digest_size(PyObject *self, void *closure)
+{
+    return PyInt_FromLong(8);
+}
+
+static PyObject *
+PYXXH64_get_name(PyObject *self, void *closure)
+{
+    return PyString_FromStringAndSize("XXH64", 5);
+}
+
+static PyGetSetDef PYXXH64_getseters[] = {
+    {"digest_size",
+     (getter)PYXXH64_get_digest_size, NULL,
+     NULL,
+     NULL},
+    {"block_size",
+     (getter)PYXXH64_get_block_size, NULL,
+     NULL,
+     NULL},
+    {"name",
+     (getter)PYXXH64_get_name, NULL,
+     NULL,
+     NULL},
+    {NULL}  /* Sentinel */
 };
 
 static PyTypeObject PYXXH64Type = {
@@ -333,7 +429,7 @@ static PyTypeObject PYXXH64Type = {
     0,                             /* tp_iternext */
     PYXXH64_methods,               /* tp_methods */
     0,                             /* tp_members */
-    0,                             /* tp_getset */
+    PYXXH64_getseters,             /* tp_getset */
     0,                             /* tp_base */
     0,                             /* tp_dict */
     0,                             /* tp_descr_get */
