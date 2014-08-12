@@ -169,7 +169,11 @@ static PyObject *PYXXH32_digest(PYXXH32Object *self)
 {
     unsigned int digest = XXH32_intermediateDigest(self->xxhash_state);
 
+#if PY_MAJOR_VERSION < 3
     return PyString_FromStringAndSize((char*)&digest, 4);
+#else
+    return PyBytes_FromStringAndSize((char*)&digest, 4);
+#endif
 }
 
 static PyObject *PYXXH32_hex_digest(PYXXH32Object *self)
@@ -191,7 +195,12 @@ static PyObject *PYXXH32_hex_digest(PYXXH32Object *self)
         hexdigest[j++] = c;
         digest = digest << 8;
     }
+
+#if PY_MAJOR_VERSION < 3
     return PyString_FromStringAndSize((char*)hexdigest, 8);
+#else
+    return PyUnicode_FromStringAndSize((char*)hexdigest, 8);
+#endif
 }
 
 static PyObject *PYXXH32_copy(PYXXH32Object *self)
@@ -228,7 +237,11 @@ PYXXH32_get_digest_size(PyObject *self, void *closure)
 static PyObject *
 PYXXH32_get_name(PyObject *self, void *closure)
 {
+#if PY_MAJOR_VERSION < 3
     return PyString_FromStringAndSize("XXH32", 5);
+#else
+    return PyUnicode_FromStringAndSize("XXH32", 5);
+#endif
 }
 
 static PyGetSetDef PYXXH32_getseters[] = {
@@ -386,7 +399,12 @@ static PyObject *PYXXH64_update(PYXXH64Object *self, PyObject *args)
 static PyObject *PYXXH64_digest(PYXXH64Object *self)
 {
     unsigned long long digest = XXH64_intermediateDigest(self->xxhash_state);
+
+#if PY_MAJOR_VERSION < 3
     return PyString_FromStringAndSize((char*)&digest, 8);
+#else
+    return PyBytes_FromStringAndSize((char*)&digest, 8);
+#endif
 }
 
 static PyObject *PYXXH64_hex_digest(PYXXH32Object *self)
@@ -408,7 +426,12 @@ static PyObject *PYXXH64_hex_digest(PYXXH32Object *self)
         hexdigest[j++] = c;
         digest = digest << 8;
     }
+
+#if PY_MAJOR_VERSION < 3
     return PyString_FromStringAndSize((char*)hexdigest, 16);
+#else
+    return PyUnicode_FromStringAndSize((char*)hexdigest, 16);
+#endif
 }
 
 static PyObject *PYXXH64_copy(PYXXH64Object *self)
@@ -445,7 +468,11 @@ PYXXH64_get_digest_size(PyObject *self, void *closure)
 static PyObject *
 PYXXH64_get_name(PyObject *self, void *closure)
 {
+#if PY_MAJOR_VERSION < 3
     return PyString_FromStringAndSize("XXH64", 5);
+#else
+    return PyUnicode_FromStringAndSize("XXH64", 5);
+#endif
 }
 
 static PyGetSetDef PYXXH64_getseters[] = {
