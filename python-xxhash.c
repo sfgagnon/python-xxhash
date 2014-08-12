@@ -225,13 +225,13 @@ static PyMethodDef PYXXH32_methods[] = {
 static PyObject *
 PYXXH32_get_block_size(PyObject *self, void *closure)
 {
-    return PyInt_FromLong(16);
+    return Py_BuildValue("I", 16);
 }
 
 static PyObject *
 PYXXH32_get_digest_size(PyObject *self, void *closure)
 {
-    return PyInt_FromLong(4);
+    return Py_BuildValue("I", 4);
 }
 
 static PyObject *
@@ -456,13 +456,13 @@ static PyMethodDef PYXXH64_methods[] = {
 static PyObject *
 PYXXH64_get_block_size(PyObject *self, void *closure)
 {
-    return PyInt_FromLong(32);
+    return Py_BuildValue("I", 32);
 }
 
 static PyObject *
 PYXXH64_get_digest_size(PyObject *self, void *closure)
 {
-    return PyInt_FromLong(8);
+    return Py_BuildValue("I", 8);
 }
 
 static PyObject *
