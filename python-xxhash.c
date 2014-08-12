@@ -40,7 +40,7 @@
  * Module Functions ***********************************************************
  ****************************************************************************/
 
-static char *keywords[] = {"input", "seed", NULL};
+static char *keywords[] = {"string", "start", NULL};
 
 static PyObject *xxh32(PyObject *self, PyObject *args, PyObject *kwargs)
 {
@@ -106,27 +106,62 @@ static PyObject *PYXXH32_new(PyTypeObject *type, PyObject *args, PyObject *kwarg
 static int PYXXH32_init(PYXXH32Object *self, PyObject *args, PyObject *kwargs)
 {
     unsigned int seed = 0;
+    Py_buffer view = { 0 };
+    Py_ssize_t n, nbytes;
+    char *buf;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|I", &keywords[1], &seed)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|s*I:init", keywords, &view, &seed)) {
         return -1;
     }
 
-    self->xxhash_state = XXH32_init(seed);
+    if ((self->xxhash_state = XXH32_init(seed)) == NULL) {
+        PyBuffer_Release(&view);
+        PyErr_Format(PyExc_MemoryError,
+            "Can't allocate hash state data structure");
+        return -1;
+    }
 
+    n = view.len;
+    buf = (char *) view.buf;
+    while (n > 0) {
+        if (n > 1073741824)
+            nbytes = 1073741824;
+        else
+            nbytes = n;
+        XXH32_update(self->xxhash_state, buf,
+                     Py_SAFE_DOWNCAST(nbytes, Py_ssize_t, unsigned int));
+        buf += nbytes;
+        n -= nbytes;
+    }
+
+    PyBuffer_Release(&view);
     return 0;
 }
 
 static PyObject *PYXXH32_update(PYXXH32Object *self, PyObject *args)
 {
-    const char *s;
-    unsigned int ns;
+    Py_buffer view = { 0 };
+    Py_ssize_t n, nbytes;
+    char *buf;
 
-    if (!PyArg_ParseTuple(args, "s#", &s, &ns)) {
+    if (!PyArg_ParseTuple(args, "s*:update", &view)) {
         return NULL;
     }
 
-    XXH32_update(self->xxhash_state, s, ns);
+    n = view.len;
+    buf = (char *) view.buf;
+    while (n > 0) {
+         if (n > 1073741824)
+            nbytes = 1073741824;
+        else
+            nbytes = n;
+        XXH32_update(self->xxhash_state, buf,
+                     Py_SAFE_DOWNCAST(nbytes, Py_ssize_t, unsigned int));
+        buf += nbytes;
+        n -= nbytes;
+    }
 
+    PyBuffer_Release(&view);
     Py_RETURN_NONE;
 }
 
@@ -164,7 +199,7 @@ static PyObject *PYXXH32_copy(PYXXH32Object *self)
     PYXXH32Object *hashObject;
     hashObject = (PYXXH32Object *)PyObject_CallFunction((PyObject*)&PYXXH32Type, NULL);
     if (hashObject == NULL)
-        return 0;
+        return NULL;
 
     memcpy(hashObject->xxhash_state, self->xxhash_state, XXH32_sizeofState());
     return (PyObject *)hashObject;
@@ -289,27 +324,62 @@ static PyObject *PYXXH64_new(PyTypeObject *type, PyObject *args, PyObject *kwarg
 static int PYXXH64_init(PYXXH64Object *self, PyObject *args, PyObject *kwargs)
 {
     unsigned long long seed = 0;
+    Py_buffer view = { 0 };
+    Py_ssize_t n, nbytes;
+    char *buf;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|K", &keywords[1], &seed)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|s*K:init", keywords, &view, &seed)) {
         return -1;
     }
 
-    self->xxhash_state = XXH64_init(seed);
+    if ((self->xxhash_state = XXH64_init(seed)) == NULL) {
+        PyBuffer_Release(&view);
+        PyErr_Format(PyExc_MemoryError,
+            "Can't allocate hash state data structure");
+        return -1;
+    }
 
+    n = view.len;
+    buf = (char *) view.buf;
+    while (n > 0) {
+        if (n > 1073741824)
+            nbytes = 1073741824;
+        else
+            nbytes = n;
+        XXH64_update(self->xxhash_state, buf,
+                     Py_SAFE_DOWNCAST(nbytes, Py_ssize_t, unsigned int));
+        buf += nbytes;
+        n -= nbytes;
+    }
+
+    PyBuffer_Release(&view);
     return 0;
 }
 
 static PyObject *PYXXH64_update(PYXXH64Object *self, PyObject *args)
 {
-    const char *s;
-    unsigned int ns;
+    Py_buffer view = { 0 };
+    Py_ssize_t n, nbytes;
+    char *buf;
 
-    if (!PyArg_ParseTuple(args, "s#", &s, &ns)) {
+    if (!PyArg_ParseTuple(args, "s*:update", &view)) {
         return NULL;
     }
 
-    XXH64_update(self->xxhash_state, s, ns);
+    n = view.len;
+    buf = (char *) view.buf;
+    while (n > 0) {
+         if (n > 1073741824)
+            nbytes = 1073741824;
+        else
+            nbytes = n;
+        XXH64_update(self->xxhash_state, buf,
+                     Py_SAFE_DOWNCAST(nbytes, Py_ssize_t, unsigned int));
+        buf += nbytes;
+        n -= nbytes;
+    }
 
+    PyBuffer_Release(&view);
     Py_RETURN_NONE;
 }
 
@@ -346,7 +416,7 @@ static PyObject *PYXXH64_copy(PYXXH64Object *self)
     PYXXH64Object *hashObject;
     hashObject = (PYXXH64Object *)PyObject_CallFunction((PyObject*)&PYXXH64Type, NULL);
     if (hashObject == NULL)
-        return 0;
+        return NULL;
 
     memcpy(hashObject->xxhash_state, self->xxhash_state, XXH64_sizeofState());
     return (PyObject *)hashObject;
