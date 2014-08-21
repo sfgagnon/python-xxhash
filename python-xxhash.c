@@ -260,6 +260,17 @@ static PyGetSetDef PYXXH32_getseters[] = {
     {NULL}  /* Sentinel */
 };
 
+PyDoc_STRVAR(XXH32_doc,
+"An XXH32 represents the object used to calculate the xxh64 hash of a\n\
+string of information.\n\
+\n\
+Methods:\n\
+\n\
+update() -- updates the current digest with an additional string\n\
+digest() -- return the current digest value\n\
+hexdigest() -- return the current digest as a string of hexadecimal digits\n\
+copy() -- return a copy of the current md5 object");
+
 static PyTypeObject PYXXH32Type = {
 #if PY_MAJOR_VERSION >= 3
     PyVarObject_HEAD_INIT(&PyType_Type, 0)
@@ -286,7 +297,7 @@ static PyTypeObject PYXXH32Type = {
     0,                             /* tp_setattro */
     0,                             /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT,            /* tp_flags */
-    "XXH32",                       /* tp_doc */
+    XXH32_doc,                     /* tp_doc */
     0,                             /* tp_traverse */
     0,                             /* tp_clear */
     0,                             /* tp_richcompare */
@@ -491,6 +502,17 @@ static PyGetSetDef PYXXH64_getseters[] = {
     {NULL}  /* Sentinel */
 };
 
+PyDoc_STRVAR(XXH64_doc,
+"An XXH64 represents the object used to calculate the xxh64 hash of a\n\
+string of information.\n\
+\n\
+Methods:\n\
+\n\
+update() -- updates the current digest with an additional string\n\
+digest() -- return the current digest value\n\
+hexdigest() -- return the current digest as a string of hexadecimal digits\n\
+copy() -- return a copy of the current md5 object");
+
 static PyTypeObject PYXXH64Type = {
 #if PY_MAJOR_VERSION >= 3
     PyVarObject_HEAD_INIT(&PyType_Type, 0)
@@ -517,7 +539,7 @@ static PyTypeObject PYXXH64Type = {
     0,                             /* tp_setattro */
     0,                             /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT,            /* tp_flags */
-    "XXH64",                       /* tp_doc */
+    XXH64_doc,                     /* tp_doc */
     0,                             /* tp_traverse */
     0,                             /* tp_clear */
     0,                             /* tp_richcompare */
@@ -555,9 +577,60 @@ struct module_state {
 static struct module_state _state;
 #endif
 
+PyDoc_STRVAR(module_doc,
+"This module is a Python binding for the xxHash library\n\
+(http://code.google.com/p/xxhash/) by Yann Collet.\n\n\
+Two functions (xxh32 and xxh64) return 32bit or 64bit hash\n\
+integer of an input string. For example:\n\
+\n\
+    >>> import xxhash\n\
+    >>> xxhash.xxh64(\"Nobody inspects the spammish repetition\")\n\
+    18144624926692707313L\n\
+\n\
+The module also includes the XXH32 and XXH64 objects that have hashlib\n\
+compatible interfaces:\n\
+ - update(arg): Update the hash object with the string arg. Repeated calls\n\
+                are equivalent to a single call with the concatenation of all\n\
+                the arguments.\n\
+ - digest():    Return the digest of the strings passed to the update() method\n\
+                so far. This may contain non-ASCII characters, including\n\
+                NUL bytes.\n\
+ - hexdigest(): Like digest() except the digest is returned as a string of\n\
+                double length, containing only hexadecimal digits.\n\
+ - copy():      Return a copy (clone) of the hash object. This can be used to\n\
+                efficiently compute the digests of strings that share a common\n\
+                initial substring.\n\
+\n\
+For example, to obtain the digest of the string 'Nobody inspects the\n\
+spammish repetition':\n\
+\n\
+    >>> import xxhash\n\
+    >>> m = xxhash.XXH64()\n\
+    >>> m.update(\"Nobody inspects\")\n\
+    >>> m.update(\" the spammish repetition\")\n\
+    >>> m.digest()\n\
+    ''\\xf1\\x8b7\\x8a<\\xa8\\xce\\xfb''\n\
+\n\
+More condensed:\n\
+\n\
+    >>> xxhash.XXH64(\"Nobody inspects the spammish repetition\").hexdigest()\n\
+    'fbcea83c8a378bf1'\n");
+
+PyDoc_STRVAR(xxh32_doc,
+"xxh32(string, start)\n\
+Calculate the 32-bits hash of a string or memory buffer\n\
+start can be used to alter the result predictably.\n\
+Return: Long integer hash value.\n");
+
+PyDoc_STRVAR(xxh64_doc,
+"xxh64(string, start)\n\
+Calculate the 64-bits hash of a string or memory buffer\n\
+start can be used to alter the result predictably.\n\
+Return: Long integer hash value.\n");
+
 static PyMethodDef methods[] = {
-    {"xxh32", (PyCFunction)xxh32, METH_VARARGS | METH_KEYWORDS, "XXH32"},
-    {"xxh64", (PyCFunction)xxh64, METH_VARARGS | METH_KEYWORDS, "XXH64"},
+    {"xxh32", (PyCFunction)xxh32, METH_VARARGS | METH_KEYWORDS, xxh32_doc},
+    {"xxh64", (PyCFunction)xxh64, METH_VARARGS | METH_KEYWORDS, xxh64_doc},
     {NULL, NULL, 0, NULL}
 };
 
@@ -579,7 +652,7 @@ static int myextension_clear(PyObject *m)
 static struct PyModuleDef moduledef = {
     PyModuleDef_HEAD_INIT,
     "xxhash",
-    NULL,
+    module_doc,
     sizeof(struct module_state),
     methods,
     NULL,
@@ -604,7 +677,7 @@ void initxxhash(void)
 #if PY_MAJOR_VERSION >= 3
     module = PyModule_Create(&moduledef);
 #else
-    module = Py_InitModule("xxhash", methods);
+    module = Py_InitModule3("xxhash", methods, module_doc);
 #endif
 
     if (module == NULL) {

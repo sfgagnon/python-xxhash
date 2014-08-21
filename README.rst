@@ -29,8 +29,73 @@ Installation
 
     $ pip install xxhash
 
-Synopsis
---------
+Usage
+-----
+
+Two functions (xxh32 and xxh64) return 32bit or 64bit hash
+integer of an input string. For example:
+
+::
+
+    >>> import xxhash
+    >>> xxhash.xxh64("Nobody inspects the spammish repetition")
+    18144624926692707313L
+
+An optional start value (or seed) can be used to alter the result predictably.
+
+::
+
+    >>> xxhash.xxh32('a') == xxhash.xxh32('a', 0) == xxhash.xxh32('a', start=0)
+    True
+    >>>
+    >>> xxhash.xxh64('a')
+    15154266338359012955L
+    >>> xxhash.xxh64('a') == xxhash.xxh64('a', 0) == xxhash.xxh64('a', start=0)
+    True
+
+The module also includes the XXH32 and XXH64 objects that have hashlib
+compatible interfaces:
+
+ - update(arg): Update the hash object with the string arg. Repeated calls
+                are equivalent to a single call with the concatenation of all
+                the arguments.
+ - digest():    Return the digest of the strings passed to the update() method
+                so far. This may contain non-ASCII characters, including
+                NUL bytes.
+ - hexdigest(): Like digest() except the digest is returned as a string of
+                double length, containing only hexadecimal digits.
+ - copy():      Return a copy (clone) of the hash object. This can be used to
+                efficiently compute the digests of strings that share a common
+                initial substring.
+
+For example, to obtain the digest of the string 'Nobody inspects the
+spammish repetition':
+
+::
+
+    >>> import xxhash
+    >>> m = xxhash.XXH64()
+    >>> m.update("Nobody inspects")
+    >>> m.update(" the spammish repetition")
+    >>> m.digest()
+    ''\\xf1\\x8b7\\x8a<\\xa8\\xce\\xfb''
+
+More condensed:
+
+::
+
+    >>> xxhash.XXH64("Nobody inspects the spammish repetition").hexdigest()
+    'fbcea83c8a378bf1'");
+
+
+Hash objects can be initialized at creation with a string or start value:
+
+::
+
+    >>>> m = xxhash.XXH32('hello world', start=10)
+
+Module version and xxhash library version can be querried using the VERSION
+and XXHASH_VERSION variables respectively.
 
 ::
 
@@ -39,35 +104,6 @@ Synopsis
     '0.0.1'
     >>> xxhash.XXHASH_VERSION
     'r35'
-    >>>
-    >>> xxhash.xxh32('a')
-    1426945110
-    >>> xxhash.xxh32('a') == xxhash.xxh32('a', 0) == xxhash.xxh32('a', seed=0)
-    True
-    >>>
-    >>> xxhash.xxh64('a')
-    15154266338359012955L
-    >>> xxhash.xxh64('a') == xxhash.xxh64('a', 0) == xxhash.xxh64('a', seed=0)
-    True
-    >>>
-    >>>
-    >>> x = xxhash.XXH32(seed=20140805)
-    >>> x.update('a')
-    >>> x.digest()
-    3923507256
-    >>> x.update('b')
-    >>> x.update('c')
-    >>> x.digest()
-    4042190321
-    >>>
-    >>> x = xxhash.XXH64(seed=20140805)
-    >>> x.digest()
-    2833816799783501320L
-    >>> x.update('a')
-    >>> x.update('b')
-    >>> x.update('c')
-    >>> x.digest()
-    3288515524728323397L
 
 Copyright and License
 ---------------------
@@ -75,4 +111,3 @@ Copyright and License
 Copyright (c) 2014 Yue Du - https://github.com/ifduyue
 
 Licensed under `BSD 2-Clause License <http://opensource.org/licenses/BSD-2-Clause>`_
-
