@@ -56,17 +56,10 @@ An optional start value (or seed) can be used to alter the result predictably.
 The module also includes the XXH32 and XXH64 objects that have hashlib
 compatible interfaces:
 
- - update(arg): Update the hash object with the string arg. Repeated calls
-                are equivalent to a single call with the concatenation of all
-                the arguments.
- - digest():    Return the digest of the strings passed to the update() method
-                so far. This may contain non-ASCII characters, including
-                NUL bytes.
- - hexdigest(): Like digest() except the digest is returned as a string of
-                double length, containing only hexadecimal digits.
- - copy():      Return a copy (clone) of the hash object. This can be used to
-                efficiently compute the digests of strings that share a common
-                initial substring.
+- update(arg): Update the hash object with the string arg. Repeated calls are equivalent to a single call with the concatenation of all the arguments.
+- digest():    Return the digest of the strings passed to the update() method so far. This may contain non-ASCII characters, including NUL bytes.
+- hexdigest(): Like digest() except the digest is returned as a string of double length, containing only hexadecimal digits.
+- copy():      Return a copy (clone) of the hash object. This can be used to efficiently compute the digests of strings that share a common initial substring.
 
 For example, to obtain the digest of the string 'Nobody inspects the
 spammish repetition':
