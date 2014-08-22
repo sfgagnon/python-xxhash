@@ -45,30 +45,42 @@ static char *keywords[] = {"string", "start", NULL};
 static PyObject *xxh32(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     unsigned int seed = 0, digest = 0;
-    const char *s;
+    Py_buffer view = { 0 };
     unsigned int ns;
-    (void)self;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s#|I", keywords, &s, &ns, &seed)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s*|I:xxh32", keywords, &view, &seed)) {
         return NULL;
     }
 
-    digest = XXH32(s, ns, seed);
+    if (view.len > 1073741824) {
+        PyErr_Format(PyExc_ValueError,
+            "Input string length must be less or equal to 1GByte");
+        return NULL;
+    }
+
+    ns = (unsigned int) view.len;
+    digest = XXH32((char *) view.buf, ns, seed);
     return Py_BuildValue("I", digest);
 }
 
 static PyObject *xxh64(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     unsigned long long seed = 0, digest = 0;
-    const char *s;
+    Py_buffer view = { 0 };
     unsigned int ns;
-    (void)self;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s#|K", keywords, &s, &ns, &seed)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s*|K:xxh64", keywords, &view, &seed)) {
         return NULL;
     }
 
-    digest = XXH64(s, ns, seed);
+    if (view.len > 1073741824) {
+        PyErr_Format(PyExc_ValueError,
+            "Input string length must be less or equal to 1GByte");
+        return NULL;
+    }
+
+    ns = (unsigned int) view.len;
+    digest = XXH64((char *) view.buf, ns, seed);
     return Py_BuildValue("K", digest);
 }
 
