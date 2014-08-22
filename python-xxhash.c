@@ -53,7 +53,6 @@ static PyObject *xxh32(PyObject *self, PyObject *args, PyObject *kwargs)
     }
 
     if (view.len > 1073741824) {
-        PyBuffer_Release(&view);
         PyErr_Format(PyExc_ValueError,
             "Input string length must be less or equal to 1GByte");
         return NULL;
@@ -61,8 +60,6 @@ static PyObject *xxh32(PyObject *self, PyObject *args, PyObject *kwargs)
 
     ns = (unsigned int) view.len;
     digest = XXH32((char *) view.buf, ns, seed);
-
-    PyBuffer_Release(&view);
     return Py_BuildValue("I", digest);
 }
 
@@ -77,7 +74,6 @@ static PyObject *xxh64(PyObject *self, PyObject *args, PyObject *kwargs)
     }
 
     if (view.len > 1073741824) {
-        PyBuffer_Release(&view);
         PyErr_Format(PyExc_ValueError,
             "Input string length must be less or equal to 1GByte");
         return NULL;
@@ -85,8 +81,6 @@ static PyObject *xxh64(PyObject *self, PyObject *args, PyObject *kwargs)
 
     ns = (unsigned int) view.len;
     digest = XXH64((char *) view.buf, ns, seed);
-
-    PyBuffer_Release(&view);
     return Py_BuildValue("K", digest);
 }
 
